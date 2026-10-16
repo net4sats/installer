@@ -14,7 +14,7 @@ host; nothing is projected.
 | Licence-attribution test | ✅ PASS (17 assertions) |
 | Pin-based build + composition | ✅ executed; `go build` exit 0; all fixes present |
 | Push, and proof by `ls-remote` | ✅ pushed; remote tip == local HEAD, verified by `ls-remote` and by the API |
-| CI | ✅ ran and passed — run `38970271526`, all gate steps `success` |
+| CI | ✅ two runs, both `success` — `38970271526`, `38970376425` |
 
 ### The repo, and the rights to push to it
 

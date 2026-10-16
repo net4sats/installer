@@ -103,6 +103,45 @@ $ gh api repos/net4sats/installer/actions/runs/38970271526/jobs -q '…'
 Both gates therefore also pass on a **fresh, shallow GitHub checkout**, which was
 the point of keeping them free of Go, network and git history.
 
+## 2c. Verified from a fresh clone of the PUBLISHED repo
+
+The strongest form of the evidence: clone what is actually published, then run
+everything there. Not the worktree the code was written in — the remote.
+
+```
+$ git clone https://github.com/net4sats/installer /tmp/…/n4s-fresh-verify
+clone exit: 0
+cloned HEAD: 7cd1af346704ede06e7979171cf8f3882a2a2d93
+remote says : 7cd1af346704ede06e7979171cf8f3882a2a2d93
+
+$ bash tests/shell/test-debrand-passthrough.sh ; echo RC=$?
+RESULT: PASS — no-brand path byte-identical to upstream, argv forwarded verbatim, brand is data
+de-brand RC=0  ok=21
+
+$ bash tests/shell/test-licence-attribution.sh ; echo RC=$?
+RESULT: PASS — GPL-3.0 verbatim, upstream copyright intact, attribution visible at run time
+licence  RC=0  ok=17
+
+$ bash install.sh --print-brand-mode
+brand=net4sats descriptor=…/n4s-fresh-verify/brand/net4sats.json
+
+$ bash install.sh --help
+Built on TollGate — Copyright (C) the OpenTollGate contributors. GPL-3.0. See LICENSE and NOTICE.
+Brand:  net4sats
+TollGate Installer — one-shot setup and headless deploy test
+
+$ TOLLGATE_TEST_PLATFORM_ONLY=1 bash install.sh --brand none --installer-tag v9.9.9-probe
+Detected platform: linux-amd64
+Asset URL: https://github.com/OpenTollGate/tollgate-installer/releases/download/v9.9.9-probe/tollgate-installer-linux-amd64
+
+$ git status --short
+(empty — the published tree is clean)
+```
+
+So a user who clones this repository gets a working wrapper: the attribution
+prints, the default brand resolves, `--help` reaches upstream with an unmodified
+argv, and the de-branded path takes the upstream default naming.
+
 ## 3. The pins (observed via `git ls-remote`, cold, against an empty repo)
 
 ```
