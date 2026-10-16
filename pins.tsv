@@ -1,0 +1,33 @@
+# net4sats/installer — PIN MANIFEST (DATA, not code)
+#
+# Every upstream ref this repository builds from, and the exact commit each one
+# must be. This file is DATA: it is the one place the pinned ref NAMES may
+# appear, and the build script READS them from here instead of spelling them.
+# scripts/build-pinned-upstream.sh refuses to build if any recorded commit
+# disagrees with the remote.
+#
+# WHY TAGS AND NOT BRANCHES
+#   The upstream PRs behind these pins are open and deliberately NOT merged
+#   (operator release freeze: pre-releases are with the review club; merging
+#   waits for a release and a clean slate). Those PR BRANCHES are the review
+#   vehicle and may be REBASED when the release lands. These TAGS are the
+#   dependency and do not move. That separation is the whole point: a rebase of
+#   pr/... cannot silently change what this repository builds.
+#
+# DO NOT FORCE-PUSH, DELETE OR RE-POINT ONE OF THESE TAGS
+#   Moving a pin is a deliberate act. Cut a NEW tag (…-2) and record it here, so
+#   an existing build stays reproducible. See docs/PINS.md.
+#
+# COLUMNS:  <commit>  <repo>  <tag>  <role>
+#   role=base    the newest-base installer pin; composed FIRST
+#   role=cherry  an independent installer pin; cherry-picked onto base
+#   role=module  a different repository; recorded, never cherry-picked here
+#
+# Independence is asserted by the build script in BOTH directions with
+# `git merge-base --is-ancestor` — these pins are mutually independent and do
+# NOT share a base (comfast descends from 5df4c9c; the other two from 346e473).
+
+b042a23964256e65e83a22c19949117bd5210926  felixfelix-bot/tollgate-installer  net4sats-pin/installer-comfast          base
+a72a4f6698f77fa1b0637723867b02316ab0d13d  felixfelix-bot/tollgate-installer  net4sats-pin/installer-gateway-domain   cherry
+049b68918684d640bb4d464869c29369b62a50d2  felixfelix-bot/tollgate-installer  net4sats-pin/installer-rebrand-gutter   cherry
+41ada96054bd5394718240d6ec9b43f39a909c12  felixfelix-bot/tollgate-module-basic-go  net4sats-pin/module-ssid-bang      module
