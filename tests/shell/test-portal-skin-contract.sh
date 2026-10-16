@@ -10,14 +10,19 @@ set -uo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$here"
 ok=0; fail=0
-D="portal-skin/admin-brand/net4sats.json"
-A="portal-skin/admin-public-assets/brand/net4sats"
+# The brand id is DATA: take it from the descriptor directory rather than spelling it,
+# because the de-brand carrier rule forbids a brand literal on any executable surface
+# (it scans tests/ too — that rule is why this file must not name the brand).
+BRAND_ID="$(basename "$(ls portal-skin/admin-brand/*.json | head -n1)" .json)"
+D="portal-skin/admin-brand/${BRAND_ID}.json"
+A="portal-skin/admin-public-assets/brand/${BRAND_ID}"
 
 if [ ! -f "$D" ]; then echo "FAIL - descriptor missing: $D"; exit 2; fi
 
-python3 - "$D" <<'PY'
+python3 - "$D" "$BRAND_ID" <<'PY'
 import json, re, sys, os
 d = json.load(open(sys.argv[1]))
+want_id = sys.argv[2]
 req = ["id","name","domain","tagline","poweredBy","website","version",
        "themeColor","sessionKey","sessionUser"]
 bad = []
@@ -27,7 +32,7 @@ for f in req:
         bad.append(f"missing/empty: {f}")
 extra = sorted(set(d) - set(req))
 if extra: bad.append(f"extra keys: {extra}")
-if d.get("id") != "net4sats": bad.append(f"id must equal the file name, got {d.get('id')!r}")
+if d.get("id") != want_id: bad.append(f"id must equal the file name, got {d.get('id')!r}")
 if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*", str(d.get("id",""))):
     bad.append("id violates the identifier alphabet")
 print("ok   - descriptor carries all ten required fields" if not any("missing" in b for b in bad)
