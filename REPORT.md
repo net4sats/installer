@@ -42,6 +42,67 @@ The de-brand gate is committed **before** the wrapper it gates
 record: at `417f87c` the gate fails because `install.sh` does not exist; the next
 commit turns it green. Two further commits add the docs and this report.
 
+## 2a. Push — the observed result
+
+```
+$ git push -u origin main
+To https://github.com/net4sats/installer
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+push exit: 0
+
+$ git ls-remote origin refs/heads/main          # a fresh observation, not the push output
+6669715bcad37c3e7878c27c356f25cfe199c2d7	refs/heads/main
+local HEAD : 6669715bcad37c3e7878c27c356f25cfe199c2d7
+```
+
+Confirmed a second way, through the API — the remote tip, all nine commits with
+their SHAs, and the 24 blobs in the tree (so the content is really there, not just
+a ref):
+
+```
+$ gh api repos/net4sats/installer -q '"default=\(.default_branch) pushed=\(.pushed_at)"'
+default=main pushed=2026-10-16T21:34:12Z
+
+$ gh api repos/net4sats/installer/commits/main -q .sha
+6669715bcad37c3e7878c27c356f25cfe199c2d7
+
+$ gh api 'repos/net4sats/installer/commits?per_page=20' -q '.[] | "\(.sha[0:12])  \(.commit.message|split("\n")[0])"'
+6669715bcad3  docs(report): work-package report with observed evidence
+189b54584589  docs: README, pins, brand, architecture, validation, contributing
+6c7c90e67b9a  ci: run both gates on every push
+6d465ccd7cfd  test(licence): gate the GPL-3.0 obligations
+e0be13b62119  feat(installer): thin wrapper over the pinned launcher
+2076ecd14c4a  feat(brand): net4sats brand input set (descriptor + four assets)
+417f87cd9355  test(debrand): RED-first gate for the no-brand pass-through
+3f9a337cb0c9  feat(pins): pin manifest + composition recipe for the pinned upstream build
+b00b2230dabd  chore(licence): GPL-3.0 with upstream copyright intact
+```
+
+No force-push; no `net4sats-pin/*` tag was touched.
+
+## 2b. CI — ran, and passed
+
+```
+$ gh run list --repo net4sats/installer
+in_progress  docs(report): …  gates  main  push  38970271526
+
+$ gh run view 38970271526
+✓ main gates · 38970271526
+✓ shell-gates in 5s
+
+$ gh api repos/net4sats/installer/actions/runs/38970271526/jobs -q '…'
+  Set up job                                                       -> success
+  Run actions/checkout@v4                                          -> success
+  de-brand regression (no-brand path byte-identical, argv verbatim) -> success
+  licence attribution (GPL-3.0 obligations)                        -> success
+  shellcheck (advisory on style, fatal on error)                   -> success
+  the vendored launcher is the pinned bytes                        -> success
+```
+
+Both gates therefore also pass on a **fresh, shallow GitHub checkout**, which was
+the point of keeping them free of Go, network and git history.
+
 ## 3. The pins (observed via `git ls-remote`, cold, against an empty repo)
 
 ```
@@ -207,3 +268,14 @@ on every run** (asserted by running it); `README.md` carries it too.
 2. **Re-point at released tags.** When upstream merges and tags, cut new pins at
    the released tags and update `pins.tsv` — the same composition with better
    provenance.
+
+---
+
+## Note on this document's own history
+
+This report is a **snapshot**, and it cannot contain the SHA of the commit that
+adds it — the hash does not exist until the commit is written. The commit that
+first added this file is `6669715bcad37c3e7878c27c356f25cfe199c2d7`, and the
+observed push and CI results recorded in §2a and §2b were added by the commit
+immediately after it, once those results had actually happened. No figure in this
+report was written ahead of the observation it describes.

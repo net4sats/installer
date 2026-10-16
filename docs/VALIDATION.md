@@ -13,7 +13,8 @@ host; nothing is projected.
 | De-brand regression test | ✅ written RED first, now PASS (21 assertions) |
 | Licence-attribution test | ✅ PASS (17 assertions) |
 | Pin-based build + composition | ✅ executed; `go build` exit 0; all fixes present |
-| Push, and proof by `ls-remote` | ⏳ pending at the time this document was written — the observed result is recorded below once the push actually happened |
+| Push, and proof by `ls-remote` | ✅ pushed; remote tip == local HEAD, verified by `ls-remote` and by the API |
+| CI | ✅ ran and passed — run `38970271526`, all gate steps `success` |
 
 ### The repo, and the rights to push to it
 
@@ -169,10 +170,14 @@ matches its recorded pin.
 
 Stated plainly, because these are the gaps a reviewer should not have to find:
 
-1. **CI has never executed at the time of writing.** The workflow is committed and
-   its steps are the same commands run locally, but no Actions run had been
-   observed. The gates were run locally, verbatim, including against a shallow
-   checkout — see the gate outputs above.
+1. **CI has run exactly once, and passed.** Run `38970271526` on `main`, job
+   `shell-gates`, every step `success` — de-brand regression, licence attribution,
+   shellcheck (`--severity=error`), and the vendored-launcher-vs-pin hash check. The
+   only output was two benign notices (the Node 20 → 24 action deprecation and an
+   `ubuntu-latest` migration note). What is *not* measured: a CI run on a pull
+   request, or on any failure path — the workflow has never been seen to *fail*,
+   so its failure reporting is unproven. The gates' failure behaviour was observed
+   locally instead (the RED runs in §6 of REPORT.md).
 2. **No router install.** No binary was downloaded and no router was touched —
    deliberately, and out of scope for this work package. `README.md`'s one-liner
    advertises `https://net4sats.com/install.sh`, which **404s today**; publishing
