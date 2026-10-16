@@ -1,0 +1,57 @@
+NOTICE — net4sats/installer
+==========================
+
+This repository is a THIN BRANDED SHELL. It contains no business logic and no
+upstream source code. At run time it hands your command line to the installer
+that upstream TollGate publishes, pinned in `vendor/upstream-install-and-test.sh`
+and verified against a recorded sha256 before it is executed.
+
+## Built on TollGate — and therefore under the GPL
+
+    This work is built on TollGate.
+    TollGate is Copyright (C) the OpenTollGate contributors.
+
+TollGate is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. TollGate is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+The full licence text is in `LICENSE`. The upstream copyright is intact and is
+NOT replaced by anything in this repository: all TollGate code, including the UI
+artefacts this shell serves, remains the copyright of the OpenTollGate
+contributors and is licensed GPL-3.0.
+
+This attribution is a licence obligation, not a courtesy. It is reproduced in
+`README.md` and printed by the installer at run time, because a NOTICE that
+nobody sees does not discharge it.
+
+## What is upstream, and where to get its source
+
+| Upstream project | Role | Source |
+|---|---|---|
+| `OpenTollGate/tollgate-installer` | The installer binary + launcher this shell wraps (GPL-3.0) | https://github.com/OpenTollGate/tollgate-installer |
+| `OpenTollGate/tollgate-module-basic-go` | All business logic; runs on the router (GPL-3.0) | https://github.com/OpenTollGate/tollgate-module-basic-go |
+| `OpenTollGate/tollgate-captive-portal-site` | The captive portal (GPL-3.0) | https://github.com/OpenTollGate/tollgate-captive-portal-site |
+| `FreedomTechFeed/packages` | The published package feed (release assets) | https://github.com/FreedomTechFeed/packages |
+
+The exact commits this repository builds from are recorded in `pins.tsv`. Because
+the launcher is redistributed here, GPL-3.0 §6 requires that the corresponding
+source be available; it is, at the pinned commits in `pins.tsv`, at the URLs
+above. `scripts/build-pinned-upstream.sh` fetches and builds exactly those
+commits, so the Corresponding Source is reproducible from this repository.
+
+## What is NOT upstream
+
+Brand identity only: `brand/net4sats.json` (a descriptor), `brand/assets/*.png`
+(logos), and `brand/active` (which descriptor is the default). These are inputs
+to upstream's own brand slot — no rendering logic, no code diff, no vendor name
+in the upstream tree.
+
+## Third-party marks
+
+"TollGate" is a project mark of the OpenTollGate contributors, used here only to
+describe the origin of the software, as the licence requires. net4sats is not
+affiliated with, endorsed by, or an official distribution of the OpenTollGate
+project.

@@ -1,0 +1,8 @@
+# Build scratch — the cloned+composed upstream tree, and its logs. Never tracked:
+# it is a *result* of the build, reproducible from pins.tsv by
+# scripts/build-pinned-upstream.sh.
+.build/
+
+# Operator-local overrides of which brand is active. brand/active itself IS
+# tracked (it is the shipped default); this is only for a local experiment.
+brand/active.local
