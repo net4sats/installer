@@ -8,7 +8,8 @@ selects a brand, verifies the installer it is about to run, and hands your comma
 line to upstream. It implements no business logic of its own.
 
 ```sh
-curl -fsSL https://net4sats.com/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/net4sats/installer/main/install.sh \
+  | N4S_REPO_SLUG=net4sats/installer sh
 ```
 
 Then follow the prompts — the wizard serves its UI on `http://localhost:8099` and
@@ -82,7 +83,8 @@ typed. `tests/shell/test-debrand-passthrough.sh` asserts exactly that.
 | `TOLLGATE_NO_BRAND=1` | same as `--brand none` |
 
 ```sh
-curl -fsSL https://net4sats.com/install.sh | sh -s -- --brand none
+curl -fsSL https://raw.githubusercontent.com/net4sats/installer/main/install.sh \
+  | N4S_REPO_SLUG=net4sats/installer sh -s -- --brand none
 ```
 
 The de-branded path is the important one and the reason the regression test exists:
