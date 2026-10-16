@@ -1,0 +1,50 @@
+name: gates
+
+# The two gates that protect the properties this repository exists to have:
+#   1. the no-brand path stays byte-identical to upstream and forwards argv verbatim
+#   2. the GPL-3.0 obligations (verbatim licence, intact upstream copyright,
+#      visible attribution) are intact
+#
+# Both are pure shell + coreutils: no Go toolchain, no network, no router, and no
+# full git history (the de-brand test hashes the vendored launcher, it does not
+# re-fetch the pin). The pin re-verification and the composition live in
+# scripts/build-pinned-upstream.sh, which needs git+go+network and is therefore
+# not run on every push — run it deliberately when the pin or vendor/ changes.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shell-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: de-brand regression (no-brand path byte-identical, argv verbatim)
+        run: bash tests/shell/test-debrand-passthrough.sh "$GITHUB_WORKSPACE"
+
+      - name: licence attribution (GPL-3.0 obligations)
+        run: bash tests/shell/test-licence-attribution.sh "$GITHUB_WORKSPACE"
+
+      - name: shellcheck (advisory on style, fatal on error)
+        run: |
+          if command -v shellcheck >/dev/null 2>&1; then
+            shellcheck --severity=error install.sh scripts/*.sh tests/shell/*.sh
+          else
+            echo "shellcheck not present; skipping"
+          fi
+
+      - name: the vendored launcher is the pinned bytes
+        run: |
+          set -eu
+          want="$(awk '/^sha256/ {print $2; exit}' scripts/upstream-launcher.sha256)"
+          got="$(sha256sum vendor/upstream-install-and-test.sh | awk '{print $1}')"
+          echo "pin:      $want"
+          echo "vendored: $got"
+          [ "$want" = "$got" ] || { echo "::error::vendored launcher does not match its pin"; exit 1; }
