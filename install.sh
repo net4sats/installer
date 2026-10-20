@@ -63,7 +63,7 @@ else
     if [ -z "$_SLUG" ]; then
         _SLUG="${N4S_DEFAULT_SLUG:-}"
     fi
-    if [ -z "$_SLUG" ]; then
+    if [ -z "$_SLUG" ] && [ -z "${N4S_REPO_URL:-}" ]; then
         printf 'ERROR: piped install needs N4S_REPO_SLUG=<owner>/<repo> (or N4S_REPO_URL).\n' >&2
         printf '       e.g.  curl -sL https://raw.githubusercontent.com/<owner>/<repo>/main/install.sh | N4S_REPO_SLUG=<owner>/<repo> sh\n' >&2
         printf '       Or run the script from a clone, where vendor/ is present locally.\n' >&2
@@ -101,7 +101,7 @@ brand_id() {
 # scripts/upstream-launcher.sha256; when piped, it is embedded below so the pin is
 # enforced identically in both cases (the value is asserted equal to the file's by
 # tests/shell/test-posix-invocation.sh, so the two can never drift silently).
-LAUNCHER_SHA_EMBEDDED="7cd397a4102dd9cc522fdecc13292aad5c00ae290b5148187451c350c6453e21"
+LAUNCHER_SHA_EMBEDDED="6595640e29e439c6f9e65d4f2daf92e3bef112cf5ba28741f3e870eef815562b"
 
 resolve_launcher() {
     # Piped case: fetch the pinned launcher, still checksum-verified.

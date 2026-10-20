@@ -367,7 +367,10 @@ installer_download_url() {
 # --- 1. detect platform ---------------------------------------------------
 detect_platform() {
     local os arch
-    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    # Portable lowercase: busybox tr does NOT support character classes —
+    # `tr '[:upper:]' '[:lower:]'` maps literal sets pairwise (u->l), turning
+    # "Linux" into "Linlx" and making every release-asset URL 404 on OpenWrt.
+    os="$(uname -s | tr 'A-Z' 'a-z')"
     case "$os" in
         mingw64_nt-*|msys_nt-*|cygwin_nt-*) os="windows" ;;
     esac
