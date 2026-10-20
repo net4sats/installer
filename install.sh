@@ -114,6 +114,24 @@ resolve_launcher() {
     fi
 }
 
+# sha256 of a file, portable across Linux and macOS. macOS ships `shasum -a 256`
+# (perl) but NOT coreutils' sha256sum, so a piped install on a Mac used to die inside
+# verify_launcher with an EMPTY digest — surfaced as a baffling "checksum mismatch
+# (pin ..., got )" rather than the real "sha256sum: command not found". Order is
+# deliberate: try sha256sum first (Linux), then shasum (macOS), then openssl dgst
+# (everywhere else). A missing digest is an ERROR, never an empty string.
+_sha256() { # _sha256 <file>
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk '{print $1}'
+    elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$1" | awk '{print $1}'
+    elif command -v openssl >/dev/null 2>&1; then
+        openssl dgst -sha256 "$1" | awk '{print $NF}'
+    else
+        return 1
+    fi
+}
+
 verify_launcher() {
     resolve_launcher
     [ -f "$LAUNCHER" ] || { printf 'ERROR: pinned launcher missing: %s\n' "$LAUNCHER" >&2; exit 1; }
@@ -122,7 +140,8 @@ verify_launcher() {
     else
         want="$LAUNCHER_SHA_EMBEDDED"
     fi
-    got="$(sha256sum "$LAUNCHER" | awk '{print $1}')"
+    got="$(_sha256 "$LAUNCHER")" || { printf 'ERROR: no sha256 tool on PATH (need sha256sum, shasum or openssl)\n' >&2; exit 1; }
+    [ -n "$got" ] || { printf 'ERROR: sha256 tool produced an empty digest for %s\n' "$LAUNCHER" >&2; exit 1; }
     [ "$want" = "$got" ] || { printf 'ERROR: launcher checksum mismatch (pin %s, got %s)\n' "$want" "$got" >&2; exit 1; }
     printf '%s' "$want" > "${TMPDIR:-/tmp}/.n4s-pin.$$"
 }
