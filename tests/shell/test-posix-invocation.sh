@@ -36,7 +36,9 @@ run_piped() { # run_piped <shell> <args...>  -- args may be empty
   fi
 }
 
-out_sh="$(export N4S_REPO_SLUG="${N4S_TEST_SLUG:-$(tr -d "\n\r" < brand/active)/installer}"; run_piped sh --print-launcher-path </dev/null)"; rc=$?
+N4S_TEST_BASE="${N4S_REPO_URL:-}"
+if [ -n "$N4S_TEST_BASE" ]; then run_piped() { local sh="$1"; shift; if [ "$#" -gt 0 ]; then timeout 25 "$sh" -s -- "$@" < install.sh 2>&1; else timeout 25 "$sh" -s < install.sh 2>&1; fi; }; export N4S_REPO_URL="$N4S_TEST_BASE"; N4S_REPO_SLUG=""; fi
+out_sh="$(if [ -z "$N4S_TEST_BASE" ]; then export N4S_REPO_SLUG="${N4S_TEST_SLUG:-$(tr -d "\n\r" < brand/active)/installer}"; fi; run_piped sh --print-launcher-path </dev/null)"; rc=$?
 if printf '%s' "$out_sh" | grep -qF "$WANT"; then echo "ok   - piped under sh (the documented one-liner)"; ok=$((ok+1));
 else echo "FAIL - piped under sh: $(printf '%s' "$out_sh" | tail -1)"; fail=$((fail+1)); fi
 
