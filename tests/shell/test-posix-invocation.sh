@@ -36,15 +36,15 @@ run_piped() { # run_piped <shell> <args...>  -- args may be empty
   fi
 }
 
-out_sh="$(run_piped sh --print-launcher-path </dev/null)"; rc=$?
+out_sh="$(export N4S_REPO_SLUG="${N4S_TEST_SLUG:-$(tr -d "\n\r" < brand/active)/installer}"; run_piped sh --print-launcher-path </dev/null)"; rc=$?
 if printf '%s' "$out_sh" | grep -qF "$WANT"; then echo "ok   - piped under sh (the documented one-liner)"; ok=$((ok+1));
 else echo "FAIL - piped under sh: $(printf '%s' "$out_sh" | tail -1)"; fail=$((fail+1)); fi
 
-out_ba="$(run_piped bash --print-launcher-path </dev/null)"
+out_ba="$(export N4S_REPO_SLUG="${N4S_TEST_SLUG:-$(tr -d "\n\r" < brand/active)/installer}"; run_piped bash --print-launcher-path </dev/null)"
 if printf '%s' "$out_ba" | grep -qF "$WANT"; then echo "ok   - piped under bash"; ok=$((ok+1));
 else echo "FAIL - piped under bash: $(printf '%s' "$out_ba" | tail -1)"; fail=$((fail+1)); fi
 
-out_da="$(run_piped dash --print-launcher-path </dev/null)"
+out_da="$(export N4S_REPO_SLUG="${N4S_TEST_SLUG:-$(tr -d "\n\r" < brand/active)/installer}"; run_piped dash --print-launcher-path </dev/null)"
 if printf '%s' "$out_da" | grep -qF "$WANT"; then echo "ok   - piped under dash"; ok=$((ok+1));
 else echo "FAIL - piped under dash: $(printf '%s' "$out_da" | tail -1)"; fail=$((fail+1)); fi
 

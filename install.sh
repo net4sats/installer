@@ -70,6 +70,11 @@ else
         exit 1
     fi
     _RAW_BASE="${N4S_REPO_URL:-https://raw.githubusercontent.com/${_SLUG}/main}"
+    # The piped path has no disk tree, so brand/active cannot be read from ROOT.
+    # Resolve the brand from the same raw base the launcher is fetched from, so
+    # the DOCUMENTED one-liner installs branded, not silently de-branded.
+    _PIPED_BRAND="$(curl -fsSL "${_RAW_BASE}/brand/active" 2>/dev/null | tr -d '\n\r' || true)"
+    [ -n "$_PIPED_BRAND" ] && export TOLLGATE_BRAND="${TOLLGATE_BRAND:-$_PIPED_BRAND}"
 fi
 
 BRAND_DIR="${ROOT:+${ROOT}/brand}"
