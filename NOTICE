@@ -1,10 +1,24 @@
 NOTICE — net4sats/installer
 ==========================
 
-This repository is a THIN BRANDED SHELL. It contains no business logic and no
-upstream source code. At run time it hands your command line to the installer
-that upstream TollGate publishes, pinned in `vendor/upstream-install-and-test.sh`
-and verified against a recorded sha256 before it is executed.
+This repository is a THIN BRANDED SHELL. It contains no business logic — no
+payment, accounting, branding or rendering code of its own. At run time it hands
+your command line to the installer that upstream TollGate publishes.
+
+## Vendored upstream launcher
+
+`vendor/upstream-install-and-test.sh` is upstream's launcher at the pinned tag
+(upstream copyright retained in the file), vendored so the shell pins the exact
+bytes it runs — **plus one recorded local patch**: a portability fix replacing
+`tr '[:upper:]' '[:lower:]'` with `tr 'A-Z' 'a-z'`, because busybox `tr` has no
+character classes and the original turned `Linux` into `Linlx`, 404ing every
+release-asset URL on OpenWrt. That patch is offered upstream as a separate PR and
+is carried here until it lands. This is the ONLY difference from the pinned tag.
+
+The patch is part of what is pinned: `scripts/build-pinned-upstream.sh` step 6
+asserts the composed tree, the recorded sha256 and the vendored file all agree,
+and `install.sh` aborts if the vendored bytes do not match
+`scripts/upstream-launcher.sha256`.
 
 ## Built on TollGate — and therefore under the GPL
 
