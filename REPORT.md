@@ -488,8 +488,12 @@ ever passes.
 
 ## R6. Limits — stated, not papered over
 
-- **Nothing pushed to `net4sats/installer`'s `main`** (hard rule). The change sits
-  on branch `pin3/fold-in-298c8d2` in `~/worktrees/n4s-pin3`, pending a PR.
+- **Nothing was pushed to `net4sats/installer`'s `main`** (hard rule). The change
+  is branch `pin3/fold-in-298c8d2` → **PR
+  https://github.com/net4sats/installer/pull/11**, OPEN, `MERGEABLE`,
+  `mergeStateStatus: CLEAN`, both `shell-gates` checks `pass` (run ids
+  40349063815 / 40349083835), left unmerged. PR #10 (the `-2` pin) is still OPEN
+  and independent of this one.
 - **The `-3` tag is a tag, not an upstream PR.** `298c8d2` is already in upstream
   `main` (merged as PR #154), so there is nothing to upstream-propose; the pin
   simply predates it.
