@@ -26,8 +26,41 @@
 # Independence is asserted by the build script in BOTH directions with
 # `git merge-base --is-ancestor` — these pins are mutually independent and do
 # NOT share a base (comfast descends from 5df4c9c; the other two from 346e473).
+# The base row is now installer-comfast-2, whose commit b042a23 is still the
+# merge-base it descends from — see the -2 note below.
+#
+# WHY THE BASE PIN IS SUFFIXED -2 (2026-10-26)
+#   The Cashu mint preference hint named a mint vendor and the retired DLEQ
+#   keyset-rotation workaround, and deploy step 8b carried the matching comment.
+#   That is operator-visible brand copy, so it was fixed UPSTREAM, not here:
+#   OpenTollGate/tollgate-installer PR #164 (70ee7fc), which also adds two
+#   regression guards. This shell must not patch internal/app/* itself — a
+#   patched app tree in the shell IS the maintained-fork drift the shell exists
+#   to remove.
+#
+#   The fix rides on the BASE pin, re-cut as a NEW tag suffixed -2 (one backport
+#   commit, 336f51c, on top of b042a23). The original tag is NOT moved and still
+#   resolves to b042a23 in git history; the -2 row is what this shell builds from
+#   now.
+#
+#   WHY THE BASE AND NOT A CHERRY PIN — measured, twice:
+#     §3 derives each pin's range as <tag>^..<tag>, i.e. exactly ONE commit per
+#     pin, and it composes the base by CHECKING ITS TREE OUT rather than
+#     cherry-picking it. So whatever the base tag points at is carried whole,
+#     while a cherry pin contributes only its last commit.
+#     (a) Fix commit added on top of a cherry pin (gateway-domain): the pin's own
+#         fix below it was not replayed at all. Re-measured before this commit by
+#         recreating it — b042a23 + a72a4f6..<gw-top> — and the result still
+#         contains `gatewaydomainname='tollgate.lan'` (grep -c => 1, want 0).
+#         §4 catches it.
+#     (b) The same backport given to a second cherry pin: once the first
+#         cherry-pick already carries it, the second is an EMPTY cherry-pick
+#         ("The previous cherry-pick is now empty ... nothing to commit"), which
+#         stops the composition just as a conflict would. Either way §3 refuses.
+#   On the base, the backport is carried whole and no later cherry-pick can drop
+#   it. Nothing else about the pins changes.
 
-b042a23964256e65e83a22c19949117bd5210926  felixfelix-bot/tollgate-installer  net4sats-pin/installer-comfast          base
+336f51cac2db75b39ef84f9237c8e596384b8a4c  felixfelix-bot/tollgate-installer  net4sats-pin/installer-comfast-2        base
 a72a4f6698f77fa1b0637723867b02316ab0d13d  felixfelix-bot/tollgate-installer  net4sats-pin/installer-gateway-domain   cherry
 049b68918684d640bb4d464869c29369b62a50d2  felixfelix-bot/tollgate-installer  net4sats-pin/installer-rebrand-gutter   cherry
 41ada96054bd5394718240d6ec9b43f39a909c12  felixfelix-bot/tollgate-module-basic-go  net4sats-pin/module-ssid-bang      module

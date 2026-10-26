@@ -60,6 +60,13 @@ net4sats-pin/module-ssid-bang           41ada96054bd5394718240d6ec9b43f39a909c12
 Every one resolves on the remote and matches `pins.tsv`. Verified by
 `git ls-remote --tags`, cold, against an empty repository.
 
+**Updated 2026-10-26:** the base pin was re-cut as `net4sats-pin/installer-comfast-2`
+→ `336f51cac2db75b39ef84f9237c8e596384b8a4c` (= `b042a23` + the brand-neutral Cashu
+mint-copy backport of upstream `70ee7fc`). The rows above are the state this
+document measured on 2026-10-16 and are kept as the dated record; `pins.tsv` and
+`docs/PINS.md` are authoritative for what the shell builds now. The old tag was
+not moved.
+
 ### The independence trap is real and is re-checked, not assumed
 
 The three installer pins are mutually independent, and do not share a base:
@@ -69,6 +76,10 @@ The three installer pins are mutually independent, and do not share a base:
 | `installer-comfast` | `5df4c9c` |
 | `installer-gateway-domain` | `346e473` |
 | `installer-rebrand-gutter` | `b26c2b9` |
+
+(As measured 2026-10-16. After the `-2` re-cut the base row is
+`installer-comfast-2`, whose base is `b042a23`; the independence result is
+unchanged and was re-measured 2026-10-26 — see `docs/PINS.md`.)
 
 `git merge-base --is-ancestor` was run in **both directions for all six ordered
 pairs**: all six report "not an ancestor". So no pin contains another, and
