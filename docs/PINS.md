@@ -5,14 +5,33 @@
 
 ## Why tags and not branches
 
-The upstream PRs behind these pins are open and **deliberately not merged** while
-the operator's release freeze holds (pre-releases are out with the review club; the
-next merge waits for a release and a clean slate). Their **branches** are the review
-vehicle and *may be rebased* when that release lands. The **tags** are the
-dependency and do not move.
+The upstream PRs behind these pins were **deliberately held** while the operator's
+release freeze was in force. **That freeze is over:** `v0.6.0` shipped on all three
+repositories on 2026-10-21 (feed `02:06Z`, installer `03:27Z`, module `03:27Z`).
 
-That separation is the whole point: a rebase of `pr/...` cannot silently change
-what this repository builds.
+The pins are still here because **the release does not contain these fixes**. Every
+pinned change merged, or was pushed, *after* the tag was cut:
+
+| Pin | Merged / pushed | Tag `v0.6.0` cut | In the release? |
+|---|---|---|---|
+| `installer-comfast` (#152) | still **open** | 2026-10-21 | no |
+| `installer-gateway-domain` (#150) | still **open** | 2026-10-21 | no |
+| `installer-rebrand-gutter` (#151) | still **open** | 2026-10-21 | no |
+| `module-ssid-bang` (#957) | merged 2026-10-23 | 2026-10-21 | no |
+
+Verified at the tag rather than assumed: `v0.6.0` has **no `internal/app/brand.go`**
+(so it predates the brand token from #153) and `deploy.go:861` **still carries** the
+`gatewaydomainname` re-arm (so it predates #150).
+
+So tags-not-branches remains the right rule — a rebase of `pr/...` still cannot
+silently change what this repository builds — but it is now a **temporary** mechanism.
+
+### Retiring the pins
+
+The gate for dropping them entirely is tracked in
+[**issue #15**](https://github.com/net4sats/installer/issues/15): what must land in
+`v0.6.1` (installer + module + a feed rebuild), and what this repo must then change.
+Until every item there is closed, these tags are the dependency.
 
 ## The pins
 
@@ -126,13 +145,27 @@ ok   - the rebrand-literal gutter test is present in the composed tree (1 file)
 **Both cherry-picks applied clean, with no conflicts**, and the composed tree
 carries all three fixes. `go build ./...` exits 0.
 
-## Two things worth re-checking when the release lands
+## Two things that were flagged for "when the release lands" — both still open
 
-1. **The `gatewayname` suffix divergence.** The pins remove the installer's
-   `gatewaydomainname` re-arm, which is the redirect-loop fix. They do **not** add
-   the `" Portal"` suffix the module writes, so the captive banner still has two
-   writers with no cross-repo pin. That is upstream work, not a shell concern.
-2. **Re-point at released tags.** When upstream merges and tags, cut new pins at
-   the released tags and update `pins.tsv`. This shell then rebuilds against
-   releases rather than pre-merge commits — the same composition, a better
-   provenance.
+The release landed on 2026-10-21 and neither of these was touched by it.
+
+1. **The `gatewayname` suffix divergence — still live, measured 2026-10-26.** Two
+   writers still disagree about the captive banner:
+
+   ```sh
+   # tollgate-installer main internal/app/deploy.go:858
+   uci -q set nodogsplash.@nodogsplash[0].gatewayname='<SSID>'
+
+   # tollgate-module-basic-go main 99-tollgate-setup:2056 and :2900
+   uci set nodogsplash.@nodogsplash[0].gatewayname="${GATEWAY_NAME} Portal"
+   ```
+
+   The installer writes no suffix, the module appends `" Portal"`, so the banner
+   text depends on which one ran last. The pins do not fix this and never did — they
+   only remove the `gatewaydomainname` re-arm. Tracked as item **C6** in
+   [issue #15](https://github.com/net4sats/installer/issues/15).
+
+2. **Re-point at released tags.** That is now the whole point of
+   [issue #15](https://github.com/net4sats/installer/issues/15): wait for `v0.6.1`
+   across installer + module + feed, then cut new pins at the released tags and update
+   `pins.tsv`. The same composition, a better provenance — and eventually no pins at all.
