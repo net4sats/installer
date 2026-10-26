@@ -114,6 +114,19 @@ else
     bad "the failure message does not say which feature broke"
 fi
 
+# ── 7. the marker set must match the one the portal repo checks ─────────────
+# The same four markers are asserted twice in two repositories: here (bash, shipping the
+# portal) and in the portal repo's tests/unit/feature-guard.test.js (node, building it).
+# Neither CI can see the other, so each pins the canonical list locally and an edit that
+# changes one side without the other fails HERE first.
+wanted="lightning-invoice paste-ecash balance-page balance-copy"
+got="$(grep -E '^check ' "$GUARD" | awk '{print $2}' | tr '\n' ' ' | sed 's/ *$//')"
+if [ "$got" = "$wanted" ]; then
+    pass "the checked markers are exactly the set the portal repo also asserts"
+else
+    bad "marker set drifted: this repo checks [$got], the portal repo asserts [$wanted]"
+fi
+
 echo
 if [ "$fail" -eq 0 ]; then
     echo "PASS — the portal feature guard rejects every way a customer-facing feature can vanish ($ok checks)"
