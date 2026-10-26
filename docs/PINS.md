@@ -274,8 +274,9 @@ pinned launcher and the vendored one is exactly that one hunk.
 Resolution was a **separate** pin re-cut that folds `298c8d2` into the base tag
 (and then re-records `scripts/upstream-launcher.sha256` + `vendor/`). It was
 deliberately out of scope there: bundling an unrelated launcher change into the
-mint-copy pin would have made that pin's provenance ambiguous, and the operator's
-release freeze covers exactly this kind of judgement. Recorded as a follow-up and
+mint-copy pin would have made that pin's provenance ambiguous, and pin
+provenance is exactly the kind of judgement that belongs in a recorded decision
+rather than bundled into an unrelated pin. Recorded as a follow-up and
 **done** as `net4sats-pin/installer-comfast-3` (see the `-3` observed result above).
 
 ## Observed result — executed 2026-10-16 (historical, pre-`-2`)
