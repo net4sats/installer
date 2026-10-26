@@ -22,8 +22,12 @@ resolves. `net4sats.com/install.sh` returns **404** today, which is why this exi
  /* overflow-wrap rather than word-break: it breaks only when the line would
     otherwise overflow, and prefers real opportunities (slashes in a URL) over
     splitting a filename down the middle. */
+ /* Slightly smaller code text so the 85-character installer URL plus its trailing
+    line-continuation fits the 44rem column. At 16px the URL consumed the full width
+    and the lone backslash soft-wrapped onto its own visual line, which reads as if
+    the continuation were a separate command. */
  pre{background:#141834;border:1px solid #232a4d;border-radius:8px;padding:1rem;
-     white-space:pre-wrap;overflow-wrap:anywhere}
+     font-size:.8125rem;white-space:pre-wrap;overflow-wrap:anywhere}
  code{color:#7abd7e}
  a{color:#f7931a}
  /* A 63-character npub in a table cell starves the other column and turns the row
