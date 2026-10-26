@@ -172,8 +172,15 @@ case "$MODE" in
         else printf '%s\n' "${_RAW_BASE}/vendor/upstream-install-and-test.sh"; fi
         exit 0 ;;
     mode)
+        # The descriptor location must be TRUTHFUL. When we have a repo on disk it
+        # is a real absolute path. When piped there is no repo, so "${BRAND_DIR}/x.json"
+        # collapses to "/x.json" — a path at the root of the caller's machine that
+        # does not exist and is NOT what the piped path reads (it reads brand/active
+        # from _RAW_BASE). Reporting a URL instead of a ragged path is the difference
+        # between an operator finding the real descriptor and chasing a phantom.
         if [ "$BRAND" = "$BRAND_OFF_SENTINEL" ]; then printf 'brand=%s descriptor=%s\n' "$BRAND" "$BRAND_OFF_SENTINEL"
-        else printf 'brand=%s descriptor=%s\n' "$BRAND" "${BRAND_DIR}/${BRAND}.json"; fi
+        elif [ -n "$ROOT" ]; then printf 'brand=%s descriptor=%s\n' "$BRAND" "${BRAND_DIR}/${BRAND}.json"
+        else printf 'brand=%s descriptor=%s\n' "$BRAND" "${_RAW_BASE}/brand/${BRAND}.json"; fi
         exit 0 ;;
     cmd)
         verify_launcher
