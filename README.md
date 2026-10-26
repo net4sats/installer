@@ -47,7 +47,7 @@ If a change here starts to look like logic, it is drift, and it belongs upstream
 it** and aborts on a mismatch rather than executing unverified bytes:
 
 ```
-ERROR: launcher checksum mismatch (pin 7cd397a4…, got …)
+ERROR: launcher checksum mismatch (pin 4e97751a…, got …)
 ```
 
 Upstream's `main` is never the build input. The reasons are in

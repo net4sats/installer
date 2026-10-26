@@ -318,3 +318,195 @@ first added this file is `6669715bcad37c3e7878c27c356f25cfe199c2d7`, and the
 observed push and CI results recorded in §2a and §2b were added by the commit
 immediately after it, once those results had actually happened. No figure in this
 report was written ahead of the observation it describes.
+
+---
+
+# Pin re-cut `-3` — fold in upstream `298c8d2` so `§6` can go green
+
+**Card:** `t_9789e7ef` (parent `t_e718b7b0`) · **Date:** 2026-10-26 · **Host:** x280
+**Scope:** the base pin the shell builds from, the launcher pin record, `vendor/`,
+the digest embedded in `install.sh`, and the docs that describe them. No
+`internal/app/*` change — this repository implements no business logic.
+
+Appended rather than replacing the document above: the WP-B report is a dated
+record and rewriting it would have destroyed it. Every figure below is an
+observation from tool output on this host.
+
+## R1. Result
+
+| Item | Value |
+|---|---|
+| New tag | `net4sats-pin/installer-comfast-3` → `9efbd13b45406f6189ed00d9cb9a9e62b757a926` |
+| Tag kind | lightweight (`git cat-file -t` = `commit`), same as the other four pins |
+| Base | `336f51c` (= `installer-comfast-2`) + **one** cherry-pick of upstream `298c8d2`, picked with `-x` so the origin is recorded |
+| Files the pick touched | `install-and-test.sh`, `tests/shell/test-launcher-platform-detection.sh` |
+| Launcher digest | `4e97751a19e5dc1e3e89adcd5871eeeca10da64177da10c75ad9aa60724e9183` |
+| Old tags | `installer-comfast` → `b042a23`, `installer-comfast-2` → `336f51c` — **not moved** (`git ls-remote` before/after; the two listings differ only by the added `-3` row) |
+| Gate | `scripts/build-pinned-upstream.sh` **exit 0**, `§6` green (R4) |
+
+The pick is faithful, not merely conflict-free: `git patch-id --stable` on
+`9efbd13 -- install-and-test.sh` and on `298c8d2 -- install-and-test.sh` returns
+the **same** id, `c66d01e5a18735aa8250040dd610cc3c30999354`. The tag's launcher
+carries `tr 'A-Z' 'a-z'` (grep count 1) and no longer the character-class form.
+
+`298c8d2` is **not** an ancestor of the new tag, and that is correct: the tag is a
+cherry-pick onto the pin lineage, not a merge of upstream `main`. "The sha comes
+from a tree containing `298c8d2`" holds by content and patch-id, not by ancestry —
+claiming ancestry would be false.
+
+## R2. Why it was needed — and one inherited claim corrected
+
+`§6` compares three digests; on `-2` they could never agree:
+
+```
+pinned tree : 7cd397a4102dd9cc…   (-2's install-and-test.sh)
+pin record  : 6595640e29e439c6…
+vendored    : 6595640e29e439c6…
+```
+
+The shell vendored the busybox-`tr` fix **itself** in `93a0ce4` (2026-10-20);
+upstream shipped its own version as `298c8d2` (2026-10-24, PR #154) after every pin
+tag had been cut. Same *fix*, different *bytes* — each commit carries a different
+comment block — so the digests could never match, and re-recording `vendor/` alone
+could not have closed `§6` honestly, because the composed tree did not contain the
+fix at all.
+
+**Corrected:** the parent card describes the delta as "exactly that one hunk"
+(`tr '[:upper:]'…` → `tr 'A-Z'…`). Measured here, the two files differ in that hunk
+**plus its comment**: 4 comment lines on the pinned side vs 3 on the vendored side,
+with different wording. Semantically one line; by bytes (what `§6` compares) not.
+That is precisely why only folding the upstream commit in could close the gate.
+
+## R3. Changes in this commit
+
+| File | Change |
+|---|---|
+| `pins.tsv` | base row → `-3`; new "WHY THE BASE PIN IS NOW SUFFIXED -3" note (the `-2` note stays — it still explains that re-cut) |
+| `docs/PINS.md` | pins table → `-3`; new "Why the base pin is now `-3`"; merge-base table → `336f51c`; recipe uses `-3`; **new `-3` observed-result block** (verbatim gate output); `-2` block kept and marked historical; the "resolution is a separate re-cut" paragraph now says it was done |
+| `docs/VALIDATION.md` | both dated notes record the `-2` **and** `-3` re-cuts |
+| `scripts/upstream-launcher.sha256` | → `4e97751a…` |
+| `vendor/upstream-install-and-test.sh` | **verbatim upstream bytes** from the `-3` tag |
+| `install.sh` | `LAUNCHER_SHA_EMBEDDED` → `4e97751a…`; comment now names the test that actually enforces it |
+| `tests/shell/test-debrand-passthrough.sh` | **new §A assertion**: the digest embedded in `install.sh` must equal the pin record |
+| `README.md` | the example mismatch message shows the current digest prefix |
+| `scripts/build-pinned-upstream.sh` | comment only: §4's mint-copy cargo described as inherited from `-2` |
+
+Why the new assertion: `install.sh`'s own comment claimed the embedded digest is
+"asserted equal to the file's by `tests/shell/test-posix-invocation.sh`". No such
+assertion existed (`grep -n EMBEDDED tests/shell/*.sh` → nothing). A re-record that
+updated the sha file and `vendor/` but missed the constant would therefore ship a
+**broken documented one-liner** with every existing gate green — on this branch it
+does exactly that, which is how the gap surfaced. The check was falsified before
+being trusted: with the constant set back to `6595640e…` the gate fails
+
+```
+FAIL - embedded launcher digest differs from the pin record: embedded=6595640e29e439c6… pin=4e97751a19e5dc1e…
+RESULT: FAIL — 1 assertion(s) failed          (rc=2)
+```
+
+and passes with the correct value.
+
+## R4. Gate output — literal (`evidence/build-pinned-upstream-pin3-FINAL.log`)
+
+```
+== 0. every pinned tag still resolves to its recorded commit on the remote
+ok   - pin net4sats-pin/installer-comfast-3 == 9efbd13b4540… on felixfelix-bot/tollgate-installer (role=base)
+ok   - pin net4sats-pin/installer-gateway-domain == a72a4f6698f7… on felixfelix-bot/tollgate-installer (role=cherry)
+ok   - pin net4sats-pin/installer-rebrand-gutter == 049b68918684… on felixfelix-bot/tollgate-installer (role=cherry)
+ok   - pin net4sats-pin/module-ssid-bang == 41ada96054bd… on felixfelix-bot/tollgate-module-basic-go (role=module)
+
+== 1. cold fetch (this is the shell's own cold path: the repository starts empty)
+ok   - fetched refs/pins/net4sats-pin/installer-comfast-3 -> 9efbd13b4540…
+ok   - fetched refs/pins/net4sats-pin/installer-gateway-domain -> a72a4f6698f7…
+ok   - fetched refs/pins/net4sats-pin/installer-rebrand-gutter -> 049b68918684…
+
+== 2. the installer pins are mutually independent (neither direction contains the other)
+ok   - net4sats-pin/installer-comfast-3 is not an ancestor of net4sats-pin/installer-gateway-domain
+ok   - net4sats-pin/installer-comfast-3 is not an ancestor of net4sats-pin/installer-rebrand-gutter
+       net4sats-pin/installer-comfast-3           base=336f51c
+ok   - net4sats-pin/installer-gateway-domain is not an ancestor of net4sats-pin/installer-comfast-3
+ok   - net4sats-pin/installer-gateway-domain is not an ancestor of net4sats-pin/installer-rebrand-gutter
+       net4sats-pin/installer-gateway-domain      base=346e473
+ok   - net4sats-pin/installer-rebrand-gutter is not an ancestor of net4sats-pin/installer-comfast-3
+ok   - net4sats-pin/installer-rebrand-gutter is not an ancestor of net4sats-pin/installer-gateway-domain
+       net4sats-pin/installer-rebrand-gutter      base=b26c2b9
+
+== 3. compose all installer pins onto release/pinned-upstream
+ok   - based on net4sats-pin/installer-comfast-3 (9efbd13b4540)
+ok   - cherry-picked 346e47362147..refs/pins/net4sats-pin/installer-gateway-domain -> bd301431be37
+ok   - cherry-picked b26c2b96aa18..refs/pins/net4sats-pin/installer-rebrand-gutter -> 5184f6f84e2d
+
+== 4. the composed tree still carries every pinned fix
+ok   - gatewaydomainname re-arm ABSENT from internal/app/deploy.go (want 0, got 0)
+ok   - cf-wr632ax present in internal/app/images.go (want >0, got 5)
+ok   - the rebrand-literal gutter test is present in the composed tree (1 file)
+ok   - no vendor-specific mint copy / DLEQ narrative in internal/app (want 0 files, got 0)
+ok   - the mint selector hint is the neutral one-liner (1 occurrence)
+ok   - the mint-copy regression guards are present in the composed tree
+
+== 5. go build + go test on the composed tree
+ok   - go build ./... exit 0
+ok   - go test ./... -count=1 exit 0 — whole suite green
+       ok  github.com/OpenTollGate/tollgate-installer/internal/app  39.442s
+
+== 6. vendored launcher == the launcher in the composed pinned tree
+       pinned tree : 4e97751a19e5dc1e3e89adcd5871eeeca10da64177da10c75ad9aa60724e9183
+       pin record  : 4e97751a19e5dc1e3e89adcd5871eeeca10da64177da10c75ad9aa60724e9183
+       vendored    : 4e97751a19e5dc1e3e89adcd5871eeeca10da64177da10c75ad9aa60724e9183
+ok   - all three agree — the vendored launcher IS the pinned tree's launcher
+
+== result
+PASS — composed 5184f6f84e2d8a8b0e30d65484db3179b3344ffb from 3 independent pins; all fixes present; build+test green; launcher verified
+```
+
+`§4`'s cargo assertions are byte-for-byte the ones `d876129` added — none was
+weakened; only the comment above them changed.
+
+## R5. The shell suite and the two product gates
+
+| Gate | Result |
+|---|---|
+| `tests/shell/test-debrand-passthrough.sh` | **PASS**, rc=0 — no-brand path byte-identical, argv verbatim, all three digest copies agree |
+| `tests/shell/test-licence-attribution.sh` | **PASS**, rc=0 — GPL-3.0 verbatim, upstream copyright intact, attribution visible at run time |
+| `tests/shell/test-busybox-tr.sh` | PASS — busybox `tr` yields `linux-arm64` |
+| `tests/shell/test-documented-urls-resolve.sh` | PASS |
+| `tests/shell/test-landing-page.sh` | PASS |
+| `tests/shell/test-macos-shasum.sh` | PASS |
+| `tests/shell/test-piped-brand.sh` | PASS |
+| `tests/shell/test-portal-skin-contract.sh` | PASS |
+| `tests/shell/test-posix-invocation.sh` | PASS **with `N4S_REPO_URL` pointed at a local server** (7/7); FAIL 3/7 against the default GitHub base — see R6 |
+| `shellcheck --severity=error install.sh scripts/*.sh tests/shell/*.sh` | rc=0 |
+
+Inside the composed tree: `tests/shell/test-launcher-platform-detection.sh` PASS
+including its new busybox case, and `tests/shell/test-rebrand-literal-gutter.sh`
+PASS.
+
+The busybox behaviour the pin exists to fix was observed both ways on the same
+test file: RED on `336f51c` (`Detected platform: Linlx-arm64`, rc=2) and GREEN on
+`-3` (`linux-arm64`, rc=0). That is a real RED→GREEN, not an assertion that only
+ever passes.
+
+## R6. Limits — stated, not papered over
+
+- **Nothing pushed to `net4sats/installer`'s `main`** (hard rule). The change sits
+  on branch `pin3/fold-in-298c8d2` in `~/worktrees/n4s-pin3`, pending a PR.
+- **The `-3` tag is a tag, not an upstream PR.** `298c8d2` is already in upstream
+  `main` (merged as PR #154), so there is nothing to upstream-propose; the pin
+  simply predates it.
+- **`test-posix-invocation.sh` fails on any branch** because its piped cases fetch
+  from the default GitHub base (`raw.githubusercontent.com/net4sats/installer/main`)
+  and compare those remote bytes with the local pin. Measured: default base → 3
+  FAIL with `got 6595640e…`; `N4S_REPO_URL=http://127.0.0.1:8765` serving the
+  worktree → 7/7 PASS. The pre-change tree (`d876129`) passes the default-base run
+  only because its pin happens to equal what `main` serves today — the test is
+  remote-coupled, not pin-coupled. Property of the test, not of this change; noted
+  rather than hidden.
+- **The composed Go suite contains a LIVE test** (`TestLivePackageDigestRejects…`)
+  that cross-checks the feed's `SHA256SUMS` against `api.github.com`. Anonymous
+  quota on this host was exhausted mid-run (`rate_limit` → `remaining: 0`), which
+  made it fail *in isolation* — and the gate, correctly, calls that a real failure.
+  With `TOLLGATE_GITHUB_TOKEN` set (the token only raises the rate limit;
+  `pkgverify.go`: "it is never required for a public release") the same tree is
+  green — R4 is that run. Both runs are kept in `evidence/`.
+- No router, no binary download, no portal work: out of scope for this card.
+

@@ -156,9 +156,10 @@ if [ "${gutter:-0}" -gt 0 ]; then
 else
     bad "the rebrand-literal gutter test is MISSING — the gutter pin was lost"
 fi
-# The -2 base pin carries brand-neutral Cashu mint copy plus its two regression
-# guards. Copy is exactly the kind of change a later cherry-pick silently reverts,
-# so assert the CONTENT and the guard file, not just the pin's presence.
+# The base pin carries brand-neutral Cashu mint copy plus its two regression
+# guards (inherited from -2, which is what first introduced them). Copy is exactly
+# the kind of change a later cherry-pick silently reverts, so assert the CONTENT
+# and the guard file, not just the pin's presence.
 vendormints="$(git grep -c -i -E 'minibits temporarily|DLEQ keyset rotation bug' -- internal/app/ 2>/dev/null | wc -l | tr -d ' ' || true)"
 vendormints="${vendormints:-0}"
 if [ "$vendormints" -eq 0 ]; then

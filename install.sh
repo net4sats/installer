@@ -100,8 +100,9 @@ brand_id() {
 # The recorded launcher digest. When we have a repo on disk it lives in
 # scripts/upstream-launcher.sha256; when piped, it is embedded below so the pin is
 # enforced identically in both cases (the value is asserted equal to the file's by
-# tests/shell/test-posix-invocation.sh, so the two can never drift silently).
-LAUNCHER_SHA_EMBEDDED="6595640e29e439c6f9e65d4f2daf92e3bef112cf5ba28741f3e870eef815562b"
+# tests/shell/test-debrand-passthrough.sh — §A checks all three copies, so they
+# cannot drift silently).
+LAUNCHER_SHA_EMBEDDED="4e97751a19e5dc1e3e89adcd5871eeeca10da64177da10c75ad9aa60724e9183"
 
 resolve_launcher() {
     # Piped case: fetch the pinned launcher, still checksum-verified.

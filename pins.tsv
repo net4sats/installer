@@ -26,8 +26,8 @@
 # Independence is asserted by the build script in BOTH directions with
 # `git merge-base --is-ancestor` — these pins are mutually independent and do
 # NOT share a base (comfast descends from 5df4c9c; the other two from 346e473).
-# The base row is now installer-comfast-2, whose commit b042a23 is still the
-# merge-base it descends from — see the -2 note below.
+# The base row is now installer-comfast-3, which still descends from the
+# merge-base b042a23 — see the -2 note and the -3 re-cut note below.
 #
 # WHY THE BASE PIN IS SUFFIXED -2 (2026-10-26)
 #   The Cashu mint preference hint named a mint vendor and the retired DLEQ
@@ -59,8 +59,33 @@
 #         stops the composition just as a conflict would. Either way §3 refuses.
 #   On the base, the backport is carried whole and no later cherry-pick can drop
 #   it. Nothing else about the pins changes.
+#
+# WHY THE BASE PIN IS NOW SUFFIXED -3 (2026-10-26)
+#   §6 of scripts/build-pinned-upstream.sh compares THREE launcher digests — the
+#   launcher inside the composed pinned tree, the one recorded in
+#   scripts/upstream-launcher.sha256, and vendor/upstream-install-and-test.sh —
+#   and it FAILED on -2: the pinned tree carried 7cd397a4… while the shell had
+#   recorded 6595640e….
+#
+#   The shell had vendored the busybox-`tr` launcher fix itself in 93a0ce4
+#   (2026-10-20), because at the time upstream had not shipped it. Upstream then
+#   shipped the same fix separately as 298c8d2 (#154, 2026-10-24) — AFTER every
+#   net4sats-pin/* tag had been cut, so no pin could contain it. The two copies
+#   differ: the shell's in-tree launcher and upstream's have distinct comments,
+#   so their digests can never agree, and the shell cannot vendor "the pinned
+#   tree's launcher" without taking upstream's bytes verbatim.
+#
+#   So this re-cut folds 298c8d2 into the BASE pin: -3 is 336f51c + one
+#   cherry-pick of 298c8d2 (9efbd13), touching install-and-test.sh and
+#   tests/shell/test-launcher-platform-detection.sh only. Its launcher hashes to
+#   4e97751a…, and THAT is what scripts/upstream-launcher.sha256 and vendor/ now
+#   record. -2 and the original tag are NOT moved.
+#
+#   Nothing else about the pins changes: -3 still descends from b042a23 via
+#   336f51c, so it is still independent of the two cherry pins, and it still
+#   carries the brand-neutral mint copy and its guards.
 
-336f51cac2db75b39ef84f9237c8e596384b8a4c  felixfelix-bot/tollgate-installer  net4sats-pin/installer-comfast-2        base
+9efbd13b45406f6189ed00d9cb9a9e62b757a926  felixfelix-bot/tollgate-installer  net4sats-pin/installer-comfast-3        base
 a72a4f6698f77fa1b0637723867b02316ab0d13d  felixfelix-bot/tollgate-installer  net4sats-pin/installer-gateway-domain   cherry
 049b68918684d640bb4d464869c29369b62a50d2  felixfelix-bot/tollgate-installer  net4sats-pin/installer-rebrand-gutter   cherry
 41ada96054bd5394718240d6ec9b43f39a909c12  felixfelix-bot/tollgate-module-basic-go  net4sats-pin/module-ssid-bang      module
