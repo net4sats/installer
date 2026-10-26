@@ -100,6 +100,31 @@ grep -rl net4sats build/admin/ | head
 python3 -c "import json;d=json.load(open('build/manifest.json'));print(d['name'])"
 ```
 
+### The features must still be there
+
+Before shipping anything built from a portal checkout, run the feature guard against the
+build directory:
+
+```sh
+bash scripts/check-portal-features.sh <path-to-portal-build>
+```
+
+It refuses a build that lost a customer-facing feature, and it looks for each marker only in
+the bundle that must serve it, so a marker that migrated to the wrong page still fails:
+
+| id | what a customer loses |
+|---|---|
+| `lightning-invoice` | the Lightning tab can request an invoice |
+| `paste-ecash` | the Cashu tab has a field to paste a token |
+| `balance-page` | the standalone balance page renders |
+| `balance-copy` | the balance page carries its own copy |
+
+A missing build directory is a **failure, not a skip** — a gate that reports success on
+nothing is worse than no gate. `tests/shell/test-portal-feature-guard.sh` proves the guard
+rejects each of these, including the locality case, on synthetic builds; running it against a
+real branded build is what caught the balance page shipping upstream branding while the
+portal was branded.
+
 ## Provenance
 
 The descriptor and all four assets come from the rescued portal overlay work
