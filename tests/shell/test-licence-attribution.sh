@@ -149,6 +149,56 @@ else
     bad "vendor/upstream-install-and-test.sh is missing"
 fi
 
+# ── 7. the public landing page ─────────────────────────────────────────────
+# The landing page is a SHIPPED SURFACE: it is the page a user reads before they
+# ever run the installer, so the §5 visible notice has to be on it too. It lived
+# in LANDING-PAGE.md while the deployed host served a stub, and nothing asserted
+# the wording there — which is exactly how an attribution clause drifts from
+# "satisfied" to "unverified" without any commit looking wrong.
+#
+# The credit must appear INSIDE the HTML block, not merely in the prose around
+# it: the surrounding markdown also discusses the footer, so a bare file-wide
+# grep would pass on commentary while shipping no credit.
+LANDING="$TREE/LANDING-PAGE.md"
+if [ ! -f "$LANDING" ]; then
+    bad "LANDING-PAGE.md is missing — the public install page has no source of record"
+else
+    html="$(awk '/^```html/{f=1;next} /^```/{f=0} f' "$LANDING")"
+    if [ -z "$html" ]; then
+        bad "LANDING-PAGE.md carries no \`\`\`html block — there is no deployable page"
+    else
+        printf '%s\n' "$html" | grep -qiE 'built on +tollgate' \
+            && ok "the landing page ships a visible 'built on TollGate' credit in its HTML" \
+            || bad "the landing page HTML does not carry a 'built on TollGate' credit"
+        printf '%s\n' "$html" | grep -qF "$UPSTREAM_COPYRIGHT" \
+            && ok "the landing page keeps the upstream copyright line" \
+            || bad "the landing page is missing the upstream copyright line"
+        # Negative control: the same matcher must reject an HTML block that has
+        # the copyright but dropped the credit, so this assertion cannot pass
+        # vacuously on a page that merely mentions attribution.
+        # The support channel is a shipped surface too. Both accounts are pinned
+        # because a page that drops one leaves the reader with nobody to ask, and
+        # nobody would notice from the page itself.
+        for npub in \
+            npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq \
+            npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv
+        do
+            printf '%s\n' "$html" | grep -qF "$npub" \
+                && ok "the landing page ships the support npub ${npub:0:16}…" \
+                || bad "the landing page is missing the support npub ${npub:0:16}…"
+        done
+
+        # NB: the credit is spelled "TollGate" (capital G), so a matcher written
+        # as [Tt]ollgate silently fails to strip it and the control passes
+        # vacuously. The I flag is what makes removal and matching agree.
+        if printf '%s\n' "$html" | sed 's/built on *tollgate//Ig' | grep -qiE 'built on +tollgate'; then
+            bad "landing-page control failed — the credit matcher is not load-bearing"
+        else
+            ok "landing-page control: a page without the credit is rejected"
+        fi
+    fi
+fi
+
 # ── report ──────────────────────────────────────────────────────────────────
 echo
 if [ "$FAIL" -eq 0 ]; then

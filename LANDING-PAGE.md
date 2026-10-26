@@ -46,6 +46,31 @@ brand literal — the brand is data. From a clone no variable is needed.</small>
 <p>Deploys the upstream TollGate stack to a supported OpenWrt router, branded as net4sats.
 The wizard runs on this machine and talks to the router over your network.</p>
 
+<h2>Supported routers</h2>
+<p>The upstream feed publishes both <code>.apk</code> (OpenWrt 25.12) and <code>.ipk</code>
+(OpenWrt 24.10) for the <code>aarch64_cortex-a53 / mediatek-filogic</code> target.</p>
+<table>
+ <tr><th>Router</th><th>Status</th></tr>
+ <tr><td>GL.iNet GL-MT3000</td><td>validated — in-place upgrade verified</td></tr>
+ <tr><td>GL.iNet GL-MT6000</td><td>validated — in-place upgrade verified</td></tr>
+ <tr><td>COMFAST CF-WR632AX</td><td>asset published, <em>not yet installed on hardware</em></td></tr>
+</table>
+<p><small>Any other device on the same target with enough flash should work, but only the
+rows above have been checked. If your router is not listed, do not flash it blind.</small></p>
+
+<h2>Support</h2>
+<p>Support runs on Nostr — no email, no ticket system. Both accounts are public and
+answer in the open, so the next person with your problem can find the answer.</p>
+<table>
+ <tr><th>Ask about</th><th>Account</th></tr>
+ <tr><td>this installer, the net4sats brand, a deploy that failed</td>
+     <td><a href="https://njump.me/npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq"><code>npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq</code></a></td></tr>
+ <tr><td>the TollGate protocol, the router module, the firmware itself</td>
+     <td><a href="https://njump.me/npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv"><code>npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv</code></a></td></tr>
+</table>
+<p><small>Paste the npub into any Nostr client if you would rather not open a link. A
+report is far more useful with your router model and the exact command you ran.</small></p>
+
 <footer>
  <p><strong>Built on TollGate</strong> — Copyright (C) the OpenTollGate contributors.
     Licensed GPL-3.0. See
@@ -63,6 +88,27 @@ The wizard runs on this machine and talks to the router over your network.</p>
 |---|---|---|
 | A | `net4sats.com/` (root) | fixes the 404 for the documented host; needs DNS/host access |
 | B | GitHub Pages on this repo | free, no DNS work; the raw one-liner already works regardless |
+
+**Deployment access (blocker, measured 2026-10-25):** the Pages host is NOT writable by the
+automation identity — `felixfelix-bot` holds `push:false, pull:true` on
+`net4sats/net4sats.github.io`, vs `admin:true, push:true` on this repo. That is why a
+fully-written page has been sitting here while `net4sats.github.io` and its canonical
+`docs.net4sats.cash` both still serve a 2013-byte "Coming soon!" stub. Deploying needs a
+push grant on the Pages repo, or an operator copying this HTML to it as `index.html`.
+
+**Support channel:** Nostr, decided 2026-10-25. Two accounts, both looked up rather than
+guessed:
+
+- net4sats — `npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq`
+  (kind-0 profile: name `net4sats`, about "Share Your WiFi, Earn Bitcoin", website
+  `https://net4sats.cash/`; the npub↔pubkey encoding was round-trip verified)
+- TollGate — `npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv`
+  (kind-0 profile: name `TollGate`, about "Discussions around deploying and managing
+  TollGates")
+
+The net4sats profile declares NIP-05 `_@net4sats.cash`, but
+`https://net4sats.cash/.well-known/nostr.json` returns **404**, so that identifier is
+currently unverifiable — which is why the page cites only the npub and not the address.
 
 Either way the page must keep the **"Built on TollGate"** footer: attribution is a
 licence obligation (GPL-3.0), and `tests/shell/test-licence-attribution.sh` asserts the
