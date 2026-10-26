@@ -462,6 +462,13 @@ PASS — composed 5184f6f84e2d8a8b0e30d65484db3179b3344ffb from 3 independent pi
 `§4`'s cargo assertions are byte-for-byte the ones `d876129` added — none was
 weakened; only the comment above them changed.
 
+Re-run once more at the pushed PR head (`31a3bac`, the report-only follow-up) to
+confirm the tree that CI sees is the tree that was gated: **exit 0**, same `§0`–`§6`
+results, `PASS — composed 4108aa1797c366f8… from 3 independent pins`
+(`evidence/build-pinned-upstream-31a3bac.log`). The composed commit sha differs
+between runs because cherry-pick commits carry a fresh timestamp; every assertion,
+digest and test result is identical.
+
 ## R5. The shell suite and the two product gates
 
 | Gate | Result |
