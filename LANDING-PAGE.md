@@ -19,10 +19,25 @@ resolves. `net4sats.com/install.sh` returns **404** today, which is why this exi
       max-width:44rem;margin:8vh auto;padding:0 1.25rem}
  h1{color:#f7931a;margin:0 0 .25rem}
  p.sub{color:#8892b0;margin:0 0 2rem}
+ /* overflow-wrap rather than word-break: it breaks only when the line would
+    otherwise overflow, and prefers real opportunities (slashes in a URL) over
+    splitting a filename down the middle. */
  pre{background:#141834;border:1px solid #232a4d;border-radius:8px;padding:1rem;
-     overflow-x:auto}
+     white-space:pre-wrap;overflow-wrap:anywhere}
  code{color:#7abd7e}
  a{color:#f7931a}
+ /* A 63-character npub in a table cell starves the other column and turns the row
+    into a tall ribbon of two-word lines. Tables stay for short cells; anything
+    carrying an npub is a stacked block instead. */
+ table{width:100%;border-collapse:collapse;margin:1rem 0}
+ th,td{text-align:left;padding:.4rem .6rem;border-bottom:1px solid #232a4d;
+       vertical-align:top}
+ th{color:#8892b0;font-weight:600}
+ .acct{margin:1rem 0;padding:.75rem 1rem;background:#141834;
+       border:1px solid #232a4d;border-radius:8px}
+ .acct .who{color:#e6e8f0;font-weight:600}
+ .acct .what{color:#8892b0;font-size:.875rem}
+ .acct code{display:block;margin-top:.4rem;word-break:break-all;font-size:.875rem}
  footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #232a4d;color:#8892b0;
         font-size:.875rem}
 </style>
@@ -36,7 +51,7 @@ resolves. `net4sats.com/install.sh` returns **404** today, which is why this exi
 cd installer &amp;&amp; sh install.sh</code></pre>
 
 <p>Or, piping straight to a shell:</p>
-<pre><code>curl -sL https://raw.githubusercontent.com/net4sats/installer/main/install.sh \\
+<pre><code>curl -sL https://raw.githubusercontent.com/net4sats/installer/main/install.sh \
   | N4S_REPO_SLUG=net4sats/installer sh</code></pre>
 
 <p><small><code>N4S_REPO_SLUG</code> is required when piping because the script carries no
@@ -61,13 +76,17 @@ rows above have been checked. If your router is not listed, do not flash it blin
 <h2>Support</h2>
 <p>Support runs on Nostr — no email, no ticket system. Both accounts are public and
 answer in the open, so the next person with your problem can find the answer.</p>
-<table>
- <tr><th>Ask about</th><th>Account</th></tr>
- <tr><td>this installer, the net4sats brand, a deploy that failed</td>
-     <td><a href="https://njump.me/npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq"><code>npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq</code></a></td></tr>
- <tr><td>the TollGate protocol, the router module, the firmware itself</td>
-     <td><a href="https://njump.me/npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv"><code>npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv</code></a></td></tr>
-</table>
+<div class="acct">
+ <div class="who">net4sats</div>
+ <div class="what">this installer, the brand, a deploy that failed</div>
+ <a href="https://njump.me/npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq"><code>npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq</code></a>
+</div>
+
+<div class="acct">
+ <div class="who">TollGate</div>
+ <div class="what">the protocol, the router module, the firmware itself</div>
+ <a href="https://njump.me/npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv"><code>npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv</code></a>
+</div>
 <p><small>Paste the npub into any Nostr client if you would rather not open a link. A
 report is far more useful with your router model and the exact command you ran.</small></p>
 
