@@ -93,6 +93,20 @@ else
     bad "vendored launcher differs from the pin: pin=${RECORDED_SHA:0:16}… vendored=${VENDORED_SHA:0:16}…"
 fi
 
+# The PIPED path has no repository on disk, so install.sh carries the same digest
+# as LAUNCHER_SHA_EMBEDDED. A re-record that updates the file but not the constant
+# would leave the documented one-liner verifying the OLD bytes — it would fetch the
+# new launcher and abort with a checksum mismatch, or (worse, on the pre-fix bytes)
+# accept a stale one. Assert the two copies are one value.
+EMBEDDED_SHA="$(sed -n 's/^LAUNCHER_SHA_EMBEDDED="\([0-9a-f]\{64\}\)"$/\1/p' "$WRAPPER" | head -1)"
+if [ -z "$EMBEDDED_SHA" ]; then
+    bad "install.sh carries no parsable LAUNCHER_SHA_EMBEDDED — the piped path would verify nothing"
+elif [ "$EMBEDDED_SHA" = "$RECORDED_SHA" ]; then
+    ok "the digest embedded in install.sh equals the pin record (piped path agrees)"
+else
+    bad "embedded launcher digest differs from the pin record: embedded=${EMBEDDED_SHA:0:16}… pin=${RECORDED_SHA:0:16}…"
+fi
+
 RESOLVED="$(bash "$WRAPPER" --print-launcher-path 2>/dev/null || true)"
 case "${RESOLVED:-}" in
     "") bad "install.sh --print-launcher-path produced nothing" ;;

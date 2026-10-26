@@ -156,6 +156,28 @@ if [ "${gutter:-0}" -gt 0 ]; then
 else
     bad "the rebrand-literal gutter test is MISSING — the gutter pin was lost"
 fi
+# The base pin carries brand-neutral Cashu mint copy plus its two regression
+# guards (inherited from -2, which is what first introduced them). Copy is exactly
+# the kind of change a later cherry-pick silently reverts, so assert the CONTENT
+# and the guard file, not just the pin's presence.
+vendormints="$(git grep -c -i -E 'minibits temporarily|DLEQ keyset rotation bug' -- internal/app/ 2>/dev/null | wc -l | tr -d ' ' || true)"
+vendormints="${vendormints:-0}"
+if [ "$vendormints" -eq 0 ]; then
+    ok "no vendor-specific mint copy / DLEQ narrative in internal/app (want 0 files, got ${vendormints})"
+else
+    bad "vendor-specific mint copy is back in ${vendormints} file(s) under internal/app — the brand-neutral mint fix was lost"
+fi
+hint="$(git grep -c 'Which Cashu mint the router should prefer for ecash payments\.' -- internal/app/index.html 2>/dev/null | awk -F: '{print $NF}' | head -1 || true)"
+if [ "${hint:-0}" -ge 1 ] 2>/dev/null; then
+    ok "the mint selector hint is the neutral one-liner (${hint} occurrence)"
+else
+    bad "the neutral mint selector hint is ABSENT from internal/app/index.html — the copy fix was lost"
+fi
+if git cat-file -e HEAD:internal/app/mint_copy_neutrality_test.go 2>/dev/null; then
+    ok "the mint-copy regression guards are present in the composed tree"
+else
+    bad "internal/app/mint_copy_neutrality_test.go is MISSING — the mint-copy guards were lost"
+fi
 
 # --- 5. build + test the composed tree ------------------------------------
 # KNOWN UPSTREAM FLAKE, handled explicitly rather than papered over. The pinned
