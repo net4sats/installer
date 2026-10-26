@@ -71,6 +71,24 @@ that needs a **guest-side brand input** contributed upstream — an env-driven
 locale/logo overlay defaulting to the current strings so the unbranded path stays
 byte-identical. Same shape as the token param and the asset slot.
 
+### Status of that gap (2026-10-26)
+
+A net4sats router must serve the **net4sats** captive portal, not the generic one, so this
+gap is now tracked as **C7** in
+[issue #15](https://github.com/net4sats/installer/issues/15). It is a three-repo chain and
+two of the three pieces are external:
+
+| Piece | Where | State |
+|---|---|---|
+| guest-side brand input | `OpenTollGate/tollgate-captive-portal-site` **#85** | **OPEN**, CLEAN — `scripts/guest-brand.mjs`, `vite.config.js`, `build-all.mjs`, 3 test files |
+| brand-resolved guest docroot | `OpenTollGate/tollgate-module-basic-go` **#1122** | **FILED** — `setup_uhttpd_portal()` hardcodes `uhttpd.portal.home='/etc/tollgate/tollgate-captive-portal-site'`, overwriting a re-brand's own docroot even though the same file documents that a re-brand "ships its own image, docroot and naming" |
+| build + ship the branded guest bundle | this repo | **NOT STARTED** — the overlay here still brands admin only |
+
+Until #85 and #1122 land, a branded guest portal cannot be served no matter what this
+overlay builds: the webroot would be overwritten on first boot. The read-back that proves
+it is C7d — resolve `uci get uhttpd.portal.home` **and** fetch `:2051` pre-auth looking for
+`Powered by TollGate`; build artefacts alone do not show what a guest is served.
+
 ## Verifying a build
 
 ```sh
