@@ -32,6 +32,9 @@ jobs:
       - name: licence attribution (GPL-3.0 obligations)
         run: bash tests/shell/test-licence-attribution.sh "$GITHUB_WORKSPACE"
 
+      - name: piped descriptor location is truthful (hermetic, no network)
+        run: bash tests/shell/test-piped-descriptor.sh
+
       - name: shellcheck (advisory on style, fatal on error)
         run: |
           if command -v shellcheck >/dev/null 2>&1; then
