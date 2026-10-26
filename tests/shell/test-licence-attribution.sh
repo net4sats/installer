@@ -176,6 +176,18 @@ else
         # Negative control: the same matcher must reject an HTML block that has
         # the copyright but dropped the credit, so this assertion cannot pass
         # vacuously on a page that merely mentions attribution.
+        # The support channel is a shipped surface too. Both accounts are pinned
+        # because a page that drops one leaves the reader with nobody to ask, and
+        # nobody would notice from the page itself.
+        for npub in \
+            npub19pxkqvlna77masux62kjq56m7s065769mx7jjxltglqy2rcxk6jqrqe7gq \
+            npub1zzt0d0s2f4lsanpd7nkjep5r79p7ljq7aw37eek64hf0ef6v0mxqgwljrv
+        do
+            printf '%s\n' "$html" | grep -qF "$npub" \
+                && ok "the landing page ships the support npub ${npub:0:16}…" \
+                || bad "the landing page is missing the support npub ${npub:0:16}…"
+        done
+
         # NB: the credit is spelled "TollGate" (capital G), so a matcher written
         # as [Tt]ollgate silently fails to strip it and the control passes
         # vacuously. The I flag is what makes removal and matching agree.
