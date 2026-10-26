@@ -46,6 +46,18 @@ brand literal — the brand is data. From a clone no variable is needed.</small>
 <p>Deploys the upstream TollGate stack to a supported OpenWrt router, branded as net4sats.
 The wizard runs on this machine and talks to the router over your network.</p>
 
+<h2>Supported routers</h2>
+<p>The upstream feed publishes both <code>.apk</code> (OpenWrt 25.12) and <code>.ipk</code>
+(OpenWrt 24.10) for the <code>aarch64_cortex-a53 / mediatek-filogic</code> target.</p>
+<table>
+ <tr><th>Router</th><th>Status</th></tr>
+ <tr><td>GL.iNet GL-MT3000</td><td>validated — in-place upgrade verified</td></tr>
+ <tr><td>GL.iNet GL-MT6000</td><td>validated — in-place upgrade verified</td></tr>
+ <tr><td>COMFAST CF-WR632AX</td><td>asset published, <em>not yet installed on hardware</em></td></tr>
+</table>
+<p><small>Any other device on the same target with enough flash should work, but only the
+rows above have been checked. If your router is not listed, do not flash it blind.</small></p>
+
 <footer>
  <p><strong>Built on TollGate</strong> — Copyright (C) the OpenTollGate contributors.
     Licensed GPL-3.0. See
@@ -63,6 +75,17 @@ The wizard runs on this machine and talks to the router over your network.</p>
 |---|---|---|
 | A | `net4sats.com/` (root) | fixes the 404 for the documented host; needs DNS/host access |
 | B | GitHub Pages on this repo | free, no DNS work; the raw one-liner already works regardless |
+
+**Deployment access (blocker, measured 2026-10-25):** the Pages host is NOT writable by the
+automation identity — `felixfelix-bot` holds `push:false, pull:true` on
+`net4sats/net4sats.github.io`, vs `admin:true, push:true` on this repo. That is why a
+fully-written page has been sitting here while `net4sats.github.io` and its canonical
+`docs.net4sats.cash` both still serve a 2013-byte "Coming soon!" stub. Deploying needs a
+push grant on the Pages repo, or an operator copying this HTML to it as `index.html`.
+
+**Still owed on this page:** a support channel link. Deliberately NOT added, because no
+channel has been decided — inventing a URL would put a dead contact on the public install
+page. Name the channel and it goes in the footer next to the source link.
 
 Either way the page must keep the **"Built on TollGate"** footer: attribution is a
 licence obligation (GPL-3.0), and `tests/shell/test-licence-attribution.sh` asserts the
